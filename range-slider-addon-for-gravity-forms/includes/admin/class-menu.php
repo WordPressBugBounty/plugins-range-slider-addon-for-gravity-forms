@@ -105,9 +105,9 @@ class GF_Range_Slider_Menu {
 ?>
         <div class="notice notice-info is-dismissible gfrs_review_notice">
             <p><?php
-                printf(
+                sprintf(
                     /* translators: 1: user display name 2: plugin name */
-                    __('Hey %1$s 👋, I noticed you are using <strong>%2$s</strong> for a few days - that\'s Awesome!  If you feel <strong>%2$s</strong> is helping your business to grow in any way, Could you please do us a BIG favor and give it a 5-star rating on WordPress to boost our motivation?', 'range-slider-addon-for-gravity-forms'),
+                    esc_html__('Hey %1$s 👋, I noticed you are using <strong>%2$s</strong> for a few days - that\'s Awesome!  If you feel <strong>%2$s</strong> is helping your business to grow in any way, Could you please do us a BIG favor and give it a 5-star rating on WordPress to boost our motivation?', 'range-slider-addon-for-gravity-forms'),
                     esc_attr($current_user->display_name),
                     'Range Slider Addon For Gravity Forms'
                 );
@@ -298,7 +298,6 @@ class GF_Range_Slider_Menu {
 
                             var notice_id = $(this).parents('#gfrs_upgrade_notice').attr('id') || '';
 
-                            console.log(notice_id);
                             jQuery.ajax({
                                 url: admin_url_rda,
                                 type: 'POST',
@@ -334,6 +333,5 @@ class GF_Range_Slider_Menu {
         return true;
     }
 }
-
 
 new GF_Range_Slider_Menu();

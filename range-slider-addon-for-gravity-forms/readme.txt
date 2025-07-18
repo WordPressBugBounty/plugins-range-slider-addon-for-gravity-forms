@@ -4,8 +4,8 @@ Contributors: pluginscafe, kaisarahmmed
 Tags: gravity forms, range slider, slider input, wordpress slider, gravity form range slider
 Requires at least: 5.0
 Requires PHP: 5.6
-Tested up to: 6.7
-Stable tag: 1.1.4
+Tested up to: 6.8
+Stable tag: 1.1.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 
@@ -14,6 +14,9 @@ Integrate your gravity forms with a smooth, lightweight, customizable range slid
 
 == Description ==
 A sleek, lightweight, and customizable range slider designed for selecting numbers or data within Gravity Forms.. This plugin adds a responsive range slider field with smooth animation. The field comes with a lot of options that's controllable from the Gravity Forms UI.
+
+[View Pro Demo](https://demo.pluginscafe.com/range-slider-addon-for-gravity-forms/) | [Buy Pro](https://pluginscafe.com/plugin/range-slider-for-gravity-forms-pro/)
+
 
 == Features ==
 * Add minimum and maximum number
@@ -24,15 +27,33 @@ A sleek, lightweight, and customizable range slider designed for selecting numbe
 * Add default value (new).
 * More feature coming...
 
+
+== Premium Features ==
+* Text slider
+* Dual handle slider
+* Prefix & Postfix
+* Tooltips & Pips
+* RTL support
+* Calculation support
+* Connect With Number Field
+* Backend validation
+* Show value under slider
+* Color/design customization
+* Filter hooks
+
 = Requirements =
 
-* PHP 5.6
+* PHP 7.4
 * Gravity Forms 2.7.0 or higher
 
 == Installation ==
 Installation is fairly straight forward. Install it from the WordPress plugin repository. 
 
 == Change log ==
+= 1.1.5 =
+* Fix 0 value issue
+* Update SDK
+
 = 1.1.4 =
 * Introduce Pro Version
 * Added Freemius SDK

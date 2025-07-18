@@ -71,7 +71,7 @@ class GF_Field_NURSlider extends GF_Field {
         return $input;
     }
 
-    function gfrs_admin_script($id, $min, $max, $prefix, $showValue, $step) {
+    public function gfrs_admin_script($id, $min, $max, $prefix, $showValue, $step) {
 
         $script = "
             function gfrs_range_slider_init_$id(){
@@ -142,7 +142,7 @@ class GF_Field_NURSlider extends GF_Field {
 
         $requires_valid_number = ! rgblank($raw_value) && ! $this->has_calculation();
 
-        if (! $requires_valid_number) {
+        if (! empty($requires_valid_number)) {
             $this->failed_validation  = true;
             $this->validation_message = empty($this->errorMessage) ? esc_html__('This field is required.', 'range-slider-addon-for-gravity-forms') : $this->errorMessage;
         }

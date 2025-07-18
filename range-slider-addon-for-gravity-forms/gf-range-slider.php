@@ -2,7 +2,7 @@
 /*
 Plugin Name: Range Slider Addon for Gravity Forms
 Plugin Url: https://pluginscafe.com/plugin/range-slider-for-gravity-forms-pro/
-Version: 1.1.4
+Version: 1.1.5
 Description: A sleek, lightweight, and customizable range slider designed for selecting numbers or data within Gravity Forms.
 Author: PluginsCafe
 Author URI: https://pluginscafe.com
@@ -58,9 +58,11 @@ if (function_exists('rsfgf_fs')) {
         do_action('rsfgf_fs_loaded');
     }
 
-    define('GF_NU_RANGE_SLIDER_ADDON_VERSION', '1.1.3');
+    define('GF_NU_RANGE_SLIDER_ADDON_VERSION', '1.1.5');
     define('GF_NU_RANGE_SLIDER_URL', plugin_dir_url(__FILE__));
     add_action('gform_loaded', array('GF_NU_Range_Slider_AddOn_Bootstrap', 'load'), 5);
+
+    require 'includes/admin/class-menu.php';
 
     class GF_NU_Range_Slider_AddOn_Bootstrap {
 
@@ -74,8 +76,6 @@ if (function_exists('rsfgf_fs')) {
 
             require_once('includes/fields/class-nu-range-slider.php');
             require_once('includes/fields/class-nu-range-slider-field.php');
-
-            require_once('includes/admin/class-menu.php');
 
             GFAddOn::register('GFRangeSliderAddOn');
         }
