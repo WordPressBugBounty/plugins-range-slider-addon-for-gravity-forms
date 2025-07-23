@@ -109,7 +109,6 @@ class GF_Field_NURSlider extends GF_Field {
     }
 
 
-
     public function get_value_merge_tag($value, $input_id, $entry, $form, $modifier, $raw_value, $url_encode, $esc_html, $format, $nl2br) {
         return GFCommon::format_number($value, $this->numberFormat);
     }
@@ -134,17 +133,16 @@ class GF_Field_NURSlider extends GF_Field {
 
     public function validate($value, $form) {
 
-        // the POST value has already been converted from currency or decimal_comma to decimal_dot and then cleaned in get_field_value()
+        $cleaned_value = GFCommon::clean_number($value, 'decimal_dot');
 
-        $value     = GFCommon::maybe_add_leading_zero($value);
-
-        $raw_value = rgar($_POST, 'input_' . $this->id, '');
-
-        $requires_valid_number = ! rgblank($raw_value) && ! $this->has_calculation();
-
-        if (! empty($requires_valid_number)) {
-            $this->failed_validation  = true;
+        if ($this->isRequired && rgblank($cleaned_value)) {
+            // If it's required and empty, fail validation.
+            $this->failed_validation = true;
             $this->validation_message = empty($this->errorMessage) ? esc_html__('This field is required.', 'range-slider-addon-for-gravity-forms') : $this->errorMessage;
+        } else if (! rgblank($value) && !is_numeric($cleaned_value)) {
+            // If it's not a valid number, fail validation.
+            $this->failed_validation  = true;
+            $this->validation_message = empty($this->errorMessage) ? esc_html__('Please enter a valid number.', 'range-slider-addon-for-gravity-forms') : $this->errorMessage;
         }
     }
 
