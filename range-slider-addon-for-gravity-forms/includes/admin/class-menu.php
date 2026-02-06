@@ -10,6 +10,8 @@ class GF_Range_Slider_Menu {
         add_action('admin_enqueue_scripts', [$this, 'admin_scripts']);
         add_action('admin_notices', [$this, 'review_request']);
         add_action('admin_notices', [$this, 'upgrade_notice']);
+        add_action('admin_notices', [$this, 'offer_admin_notice']);
+        add_action('wp_ajax_gfrs_offer_notice_dismiss', [$this, 'gfrs_offer_notice_dismiss']);
         add_action('wp_ajax_rs_review_dismiss', [$this, 'rs_review_dismiss']);
         add_action('wp_ajax_upgrade_notice_dismiss', [$this, 'upgrade_notice_dismiss']);
     }
@@ -101,15 +103,22 @@ class GF_Range_Slider_Menu {
     }
 
     public function review() {
+        $nonce = wp_create_nonce('gfrs_review_nonce');
         $current_user = wp_get_current_user();
 ?>
-        <div class="notice notice-info is-dismissible gfrs_review_notice">
+        <div class="notice notice-info is-dismissible gfrs_review_notice" data-nonce="<?php echo esc_attr($nonce); ?>">
             <p><?php
-                sprintf(
-                    /* translators: 1: user display name 2: plugin name */
-                    esc_html__('Hey %1$s 👋, I noticed you are using <strong>%2$s</strong> for a few days - that\'s Awesome!  If you feel <strong>%2$s</strong> is helping your business to grow in any way, Could you please do us a BIG favor and give it a 5-star rating on WordPress to boost our motivation?', 'range-slider-addon-for-gravity-forms'),
-                    esc_attr($current_user->display_name),
-                    'Range Slider Addon For Gravity Forms'
+                echo wp_kses_post(
+                    sprintf(
+                        /* translators: 1: user display name 2: plugin name */
+                        __(
+                            'Hey %1$s 👋, I noticed you are using <strong>%2$s</strong> for a few days - that\'s Awesome!  
+            If you feel <strong>%2$s</strong> is helping your business to grow in any way, could you please do us a BIG favor and give it a 5-star rating on WordPress to boost our motivation?',
+                            'range-slider-addon-for-gravity-forms'
+                        ),
+                        esc_html($current_user->display_name),
+                        'Range Slider Addon For Gravity Forms'
+                    )
                 );
                 ?>
             </p>
@@ -151,10 +160,14 @@ class GF_Range_Slider_Menu {
                     event.preventDefault();
                     var $this = $(this);
                     var status = $this.attr('data-status');
-                    data = {
+                    var nonce = $this.parent().parent().parent().attr('data-nonce');
+
+                    var data = {
                         action: 'rs_review_dismiss',
                         status: status,
+                        nonce: nonce
                     };
+
                     $.ajax({
                         url: ajaxurl,
                         type: 'post',
@@ -171,7 +184,12 @@ class GF_Range_Slider_Menu {
     }
 
     public function rs_review_dismiss() {
-        $status = $_POST['status'];
+        check_ajax_referer('gfrs_review_nonce', 'nonce');
+
+        $status = '';
+        if (isset($_POST['status'])) {
+            $status = sanitize_text_field(wp_unslash($_POST['status']));
+        }
 
         if ($status == 'already' || $status == 'rs_never') {
             $next_try     = strtotime("+30 days", time());
@@ -229,7 +247,7 @@ class GF_Range_Slider_Menu {
                             </div>
                         </div>
                         <div class="gfrs_upgrade_btn">
-                            <a href="<?php echo esc_url(admin_url('options-general.php?page=range-slider-for-gravity-forms')); ?>">
+                            <a href="<?php echo esc_url(rsfgf_fs()->get_upgrade_url()); ?>" target="_blank">
                                 <?php esc_html_e('Upgrade Now!', 'range-slider-addon-for-gravity-forms'); ?>
                             </a>
                         </div>
@@ -310,7 +328,7 @@ class GF_Range_Slider_Menu {
                     </script>
                 </div>
 
-<?php
+            <?php
             }
         }
     }
@@ -331,6 +349,110 @@ class GF_Range_Slider_Menu {
             return false;
         }
         return true;
+    }
+
+    public function gfrs_offer_notice_dismiss() {
+        check_ajax_referer('gfrs_offer_dismiss_nonce', 'nonce');
+        set_transient('gfrs_offer_notice_arrived', true, 3 * DAY_IN_SECONDS);
+        wp_send_json_success();
+    }
+
+    public function offer_admin_notice() {
+        $nonce = wp_create_nonce('gfrs_offer_dismiss_nonce');
+        $ajax_url = admin_url('admin-ajax.php');
+
+        $api_offer_notice = 'gfrs_offer_notice';
+        $notice_array = get_transient($api_offer_notice);
+        $is_offer_checked = get_transient('gfrs_offer_notice_arrived');
+
+        $allowed_tags = [
+            'strong' => ['style' => []],
+            'code' => [],
+            'a'      => [
+                'href'   => [],
+                'title'  => [],
+                'target' => [],
+                'rel'    => [],
+            ],
+            'span'   => ['style' => []],
+        ];
+
+
+        if ($notice_array === false) {
+            // Fetch from remote only if cache expired
+            $endpoint  = 'https://api.pluginscafe.com/wp-json/pcafe/v1/offers?id=3';
+            $response  = wp_remote_get($endpoint, array('timeout' => 10));
+
+            if (!is_wp_error($response) && $response['response']['code'] === 200) {
+                $notice_array = json_decode($response['body'], true);
+
+                // Save in cache for 3 hours (change as needed)
+                set_transient($api_offer_notice, $notice_array, 3 * HOUR_IN_SECONDS);
+            }
+        }
+
+        if (!empty($notice_array) && isset($notice_array['notice']) && $notice_array['live'] === true && $is_offer_checked === false) {
+            $notice_type = $notice_array['notice']['notice_type'] ? $notice_array['notice']['notice_type'] : 'info';
+            $notice_class = "notice-{$notice_type}";
+            ?>
+            <div class="notice <?php echo esc_attr($notice_class); ?> is-dismissible gfrs_offer_notice" data-ajax-url="<?php echo esc_url($ajax_url); ?>"
+                data-nonce="<?php echo esc_attr($nonce); ?>">
+                <div class="gfrs_notice_container" style="display: flex;align-items:center;padding:10px 0;justify-content:space-between;gap:15px;">
+                    <div class="gfrs_notice_content" style="display: flex;align-items:center;gap:15px;">
+                        <?php if ($notice_array['notice']['image']) : ?>
+                            <div class="gfrs_notice_img">
+                                <img width="90px" src="<?php echo esc_url($notice_array['notice']['image']); ?>" />
+                            </div>
+                        <?php endif; ?>
+                        <div class="gfrs_notice_text">
+                            <h3 style="margin:0 0 6px;"><?php echo esc_html($notice_array['notice']['title']); ?></h3>
+                            <p><?php echo wp_kses($notice_array['notice']['content'], $allowed_tags); ?></p>
+                            <div class="gfrs_notice_buttons" style="display: flex; gap:15px;align-items:center;">
+                                <?php if ($notice_array['notice']['show_demo_url'] === true) : ?>
+                                    <a href="https://pluginscafe.com/plugin/range-slider-for-gravity-forms-pro/" class="button-primary" target="__blank"><?php esc_html_e('Check Demo', 'range-slider-addon-for-gravity-forms'); ?></a>
+                                <?php endif; ?>
+                                <a href="#" class="gfrs_dismis_api__notice">
+                                    <?php esc_html_e('Dismiss', 'range-slider-addon-for-gravity-forms'); ?>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <?php if ($notice_array['notice']['upgrade_btn'] === true) : ?>
+                        <div class="gfrs_upgrade_btn">
+                            <a href="<?php echo esc_url(rsfgf_fs()->get_upgrade_url()); ?>" style="text-decoration: none;font-size: 15px;background: #7BBD02;color: #fff;display: inline-block;padding: 10px 20px;border-radius: 3px;">
+                                <?php echo esc_html($notice_array['notice']['upgrade_btn_text']); ?>
+                            </a>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <script>
+                jQuery(document).ready(function($) {
+                    $(document).on('click', '.gfrs_dismis_api__notice, .gfrs_offer_notice .notice-dismiss', function(event) {
+                        event.preventDefault();
+                        const $notice = jQuery(this).closest('.gfrs_offer_notice');
+                        const ajaxUrl = $notice.data('ajax-url');
+                        const nonce = $notice.data('nonce');
+
+                        $.ajax({
+                            url: ajaxUrl,
+                            type: 'post',
+                            data: {
+                                action: 'gfrs_offer_notice_dismiss',
+                                nonce: nonce
+                            },
+                            success: function(response) {
+                                $('.gfrs_offer_notice').remove();
+                            },
+                            error: function(data) {}
+                        });
+                    });
+                });
+            </script>
+<?php
+
+        }
     }
 }
 

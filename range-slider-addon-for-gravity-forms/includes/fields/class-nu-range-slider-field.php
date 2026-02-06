@@ -60,7 +60,7 @@ class GF_Field_NURSlider extends GF_Field {
 
         $input .= '<div id="gfrs_rangeslider_' . $id . '"></div>';
 
-        $input .= '<input type="hidden" name="input_' . $id . '" id="' . $field_id . '" value="' . $value . '" class="' . $class . '" ' . $invalid_attribute . ' />';
+        $input .= '<input type="hidden" name="input_' . $id . '" id="' . $field_id . '" value="' . esc_attr($value) . '" class="' . $class . '" ' . $invalid_attribute . ' />';
 
         $input .= '</div>';
 

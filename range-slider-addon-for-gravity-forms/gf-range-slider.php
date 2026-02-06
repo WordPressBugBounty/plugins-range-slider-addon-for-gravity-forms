@@ -2,7 +2,7 @@
 /*
 Plugin Name: Range Slider Addon for Gravity Forms
 Plugin Url: https://pluginscafe.com/plugin/range-slider-for-gravity-forms-pro/
-Version: 1.1.6
+Version: 1.1.7
 Description: A sleek, lightweight, and customizable range slider designed for selecting numbers or data within Gravity Forms.
 Author: PluginsCafe
 Author URI: https://pluginscafe.com
@@ -57,31 +57,32 @@ if (function_exists('rsfgf_fs')) {
         // Signal that SDK was initiated.
         do_action('rsfgf_fs_loaded');
     }
+}
 
-    define('GF_NU_RANGE_SLIDER_ADDON_VERSION', '1.1.6');
-    define('GF_NU_RANGE_SLIDER_URL', plugin_dir_url(__FILE__));
-    add_action('gform_loaded', array('GF_NU_Range_Slider_AddOn_Bootstrap', 'load'), 5);
+if (is_admin()) {
+    require_once 'includes/admin/class-menu.php';
+}
 
-    require 'includes/admin/class-menu.php';
+define('GF_NU_RANGE_SLIDER_ADDON_VERSION', '1.1.7');
+define('GF_NU_RANGE_SLIDER_URL', plugin_dir_url(__FILE__));
+add_action('gform_loaded', array('GF_NU_Range_Slider_AddOn_Bootstrap', 'load'), 5);
+class GF_NU_Range_Slider_AddOn_Bootstrap {
 
-    class GF_NU_Range_Slider_AddOn_Bootstrap {
+    public static function load() {
 
-        public static function load() {
-
-            if (! method_exists('GFForms', 'include_addon_framework')) {
-                return;
-            }
-            // are we on GF 2.5+
-            define('GFRS_GF_MIN_2_5', version_compare(GFCommon::$version, '2.5-dev-1', '>='));
-
-            require_once('includes/fields/class-nu-range-slider.php');
-            require_once('includes/fields/class-nu-range-slider-field.php');
-
-            GFAddOn::register('GFRangeSliderAddOn');
+        if (! method_exists('GFForms', 'include_addon_framework')) {
+            return;
         }
-    }
+        // are we on GF 2.5+
+        define('GFRS_GF_MIN_2_5', version_compare(GFCommon::$version, '2.5-dev-1', '>='));
 
-    function gf_nu_range_slider() {
-        return GFRangeSliderAddOn::get_instance();
+        require_once('includes/fields/class-nu-range-slider.php');
+        require_once('includes/fields/class-nu-range-slider-field.php');
+
+        GFAddOn::register('GFRangeSliderAddOn');
     }
+}
+
+function gf_nu_range_slider() {
+    return GFRangeSliderAddOn::get_instance();
 }

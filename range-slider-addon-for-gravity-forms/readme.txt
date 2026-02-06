@@ -5,7 +5,7 @@ Tags: gravity forms, range slider, slider input, wordpress slider, gravity form 
 Requires at least: 5.0
 Requires PHP: 5.6
 Tested up to: 6.8
-Stable tag: 1.1.6
+Stable tag: 1.1.7
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 
@@ -39,7 +39,7 @@ A sleek, lightweight, and customizable range slider designed for selecting numbe
 * Backend validation
 * Show value under slider
 * Color/design customization
-* Filter hooks
+
 
 = Requirements =
 
@@ -50,6 +50,10 @@ A sleek, lightweight, and customizable range slider designed for selecting numbe
 Installation is fairly straight forward. Install it from the WordPress plugin repository. 
 
 == Change log ==
+= 1.1.7 =
+* Fix dynamically populated issue
+* Update SDK
+
 = 1.1.6 =
 * Update validation
 

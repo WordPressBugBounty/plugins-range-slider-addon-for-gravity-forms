@@ -234,7 +234,7 @@ class GFRangeSliderAddOn extends GFAddOn {
 		field.rangeValueMin = 1;
 		field.rangeValueMax = 100;
 		field.rangeValueStep = 1;
-		field.showValueGField = "";
+		field.showValueGField = "show";
 		field.valuePrefixGField = "$";
 		field.defaultValueGField = "50";
 		break;
